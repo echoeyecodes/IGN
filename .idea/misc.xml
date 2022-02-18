@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/Logo/AndroidStudioProjects/NewsApp/app/src/main/res/drawable/drawable_video_timestamp.xml" value="0.116" />
+        <entry key="..\:/Users/Logo/AndroidStudioProjects/NewsApp/app/src/main/res/drawable/ic_article_video_play.xml" value="0.116" />
+        <entry key="..\:/Users/Logo/AndroidStudioProjects/NewsApp/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/Users/Logo/AndroidStudioProjects/NewsApp/app/src/main/res/layout/layout_article_paragraph.xml" value="0.1" />
+        <entry key="..\:/Users/Logo/AndroidStudioProjects/NewsApp/app/src/main/res/layout/layout_article_spacer.xml" value="0.18" />
+        <entry key="..\:/Users/Logo/AndroidStudioProjects/NewsApp/app/src/main/res/layout/layout_article_video.xml" value="0.25790754257907544" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
