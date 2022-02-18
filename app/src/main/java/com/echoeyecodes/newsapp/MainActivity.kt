@@ -7,10 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.echoeyecodes.newsapp.adapters.NewsAdapter
 import com.echoeyecodes.newsapp.databinding.ActivityMainBinding
-import com.echoeyecodes.newsapp.models.ImageModel
-import com.echoeyecodes.newsapp.models.ItalicText
-import com.echoeyecodes.newsapp.models.LinkText
-import com.echoeyecodes.newsapp.models.VideoModel
+import com.echoeyecodes.newsapp.models.*
 import com.echoeyecodes.newsapp.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -130,8 +127,8 @@ class MainActivity : AppCompatActivity() {
         return NewsArticle.Video(model)
     }
 
-    private fun resolveArticleGallery(images:List<ImageModel>): NewsArticle {
-        return NewsArticle.Gallery(images)
+    private fun resolveArticleGallery(model: GalleryModel): NewsArticle {
+        return NewsArticle.Gallery(model)
     }
 
     private fun shouldPauseTraverse(): Boolean {
@@ -159,22 +156,26 @@ class MainActivity : AppCompatActivity() {
                         val videoElement = node.allElements.findLast { it.tagName() == "video" }
                         if (videoElement != null) {
                             val thumbnail = videoElement.attr("thumbnail")
-                            val videoDetailsContainer = node.allElements.findLast { it.hasClass("video-header") }!!
-                            val videoDurationContainer = node.allElements.findLast { it.hasClass("duration") }!!
+                            val videoDetailsContainer =
+                                node.allElements.findLast { it.hasClass("video-header") }!!
+                            val videoDurationContainer =
+                                node.allElements.findLast { it.hasClass("duration") }!!
                             val title = videoDetailsContainer.children()[0].text()
                             val url = videoDetailsContainer.children()[0].attr("href")
                             val duration = videoDurationContainer.text()
 
-                            articlePiece = resolveArticleVideo(VideoModel(title, thumbnail, url, duration))
+                            articlePiece =
+                                resolveArticleVideo(VideoModel(title, thumbnail, url, duration))
                         }
-                    }else if (node.isGallery()){
+                    } else if (node.isGallery()) {
+                        val title = node.allElements.find { it.classNames().contains("title") }!!.text()
                         val imageElements = node.allElements.filter { it.tagName() == "img" }
                         val images = imageElements.map {
                             val url = it.attr("src")
                             val alt = it.attr("alt")
                             ImageModel(url, alt)
                         }
-                        articlePiece = resolveArticleGallery(images)
+                        articlePiece = resolveArticleGallery(GalleryModel(title, images))
                     }
                 }
             }
