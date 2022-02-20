@@ -1,5 +1,6 @@
 package com.echoeyecodes.newsapp.adapters
 
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -141,6 +142,10 @@ class NewsAdapter() :
 
     inner class NewsAdapterViewHolder(private val view: View) : BaseViewHolder(view) {
         private val textView = LayoutArticleParagraphBinding.bind(view).root
+
+        init {
+            textView.movementMethod = LinkMovementMethod.getInstance()
+        }
 
         fun bind(model: String) {
             textView.text = model.styleArticleText(view.context)
