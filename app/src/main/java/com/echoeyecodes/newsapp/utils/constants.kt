@@ -14,5 +14,6 @@ sealed class NewsArticle {
     class Header1(value: String): NewsHeader(value)
     class Header2(value: String): NewsHeader(value)
     class Header3(value: String): NewsHeader(value)
+    class OrderedList(val items: List<String>): NewsArticleContainer()
     object Spacing : NewsArticle()
 }

@@ -3,6 +3,7 @@ package com.echoeyecodes.newsapp.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -27,6 +28,7 @@ class NewsAdapter() :
         const val GALLERY = 3
         const val QUOTE = 4
         const val HEADER = 5
+        const val LIST = 6
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
@@ -56,6 +58,11 @@ class NewsAdapter() :
                     .inflate(R.layout.layout_article_header, parent, false)
                 NewsAdapterHeaderViewHolder(view)
             }
+            LIST -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.layout_article_list, parent, false)
+                NewsAdapterListViewHolder(view)
+            }
             else -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.layout_article_paragraph, parent, false)
@@ -82,6 +89,9 @@ class NewsAdapter() :
             getItem(position) is NewsHeader -> {
                 HEADER
             }
+            getItem(position) is NewsArticle.OrderedList -> {
+                LIST
+            }
             else -> {
                 PARAGRAPH
             }
@@ -105,6 +115,9 @@ class NewsAdapter() :
             }
             is NewsAdapterGalleryViewHolder -> {
                 holder.bind((getItem(position) as NewsArticle.Gallery).model)
+            }
+            is NewsAdapterListViewHolder -> {
+                holder.bind((getItem(position) as NewsArticle.OrderedList).items)
             }
         }
     }
@@ -139,6 +152,18 @@ class NewsAdapter() :
 
         fun bind(model: String) {
             textView.text = "".plus("\"").plus(model).plus("\"")
+        }
+    }
+
+    inner class NewsAdapterListViewHolder(private val view: View) : BaseViewHolder(view) {
+        private val recyclerView = LayoutArticleListBinding.bind(view).root
+
+        fun bind(model: List<String>) {
+            val  layoutManager = LinearLayoutManager(view.context)
+            val adapter = ArticleListAdapter()
+            recyclerView.layoutManager = layoutManager
+            recyclerView.adapter = adapter
+            adapter.submitList(model)
         }
     }
 

@@ -55,6 +55,15 @@ fun Element.isImage(): Boolean {
     return tag == "img"
 }
 
+fun Element.isList():Boolean{
+    val tag = this.tagName()
+    return tag == "ul"
+}
+
+fun Element.isContainer():Boolean{
+    return isList() || isImage() || isGallery() || isHeaderContainer() || isQuoteContainer() || isVideo()
+}
+
 fun Element.getTextType(): RegularText {
     val tag = this.tagName()
     val text = this.text()
