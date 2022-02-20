@@ -1,7 +1,10 @@
 package com.echoeyecodes.newsapp
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
+import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,12 +26,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     var article = ArrayList<NewsArticle>()
     var articlePiece: NewsArticle? = null
+    private lateinit var textView: TextView
 
     companion object {
         const val URL =
             "https://www.ign.com/articles/james-gunn-peacemaker-bisexual-character-john-cena"
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -38,13 +43,20 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
 
+        textView = binding.text
+
         AndroidUtilities.log("Init")
+        textView.movementMethod = LinkMovementMethod.getInstance()
+        textView.text =
+            "[*Peace maker in sight*](https://www.google.com) and _another platform besides this_ text [text2](https://www.google.com) requiem".styleArticleText(
+                this
+            )
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 val htmlFile = assets.open("ign.html")
 
                 val document = Jsoup.parse(htmlFile, null, "")
-                val body = document.getElementsByClass("article-page")
+                val body = document.getElementsByClass("article-content")
 
                 traverseElement(body[0])
                 runOnUiThread {
@@ -107,9 +119,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun openArticleBold(): NewsArticle {
+        return if (articlePiece != null) {
+            if (articlePiece is NewsArticle.Paragraph) {
+                NewsArticle.Paragraph((articlePiece as NewsArticle.Paragraph).value.plus("*"))
+            } else {
+                //when a paragraph starts with an italic sentence
+                addToArticle()
+                NewsArticle.Paragraph("*")
+            }
+        } else {
+            NewsArticle.Paragraph("*")
+        }
+    }
+
     private fun closeArticleLink(link: String): NewsArticle {
         return if (articlePiece != null && articlePiece is NewsArticle.Paragraph) {
-            NewsArticle.Paragraph((articlePiece as NewsArticle.Paragraph).value.plus("]".plus("(${link}) ")))
+            NewsArticle.Paragraph((articlePiece as NewsArticle.Paragraph).value.plus("]".plus("(${link})")))
         } else {
             NewsArticle.Paragraph("")
         }
@@ -123,12 +149,32 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun closeArticleBold(): NewsArticle {
+        return if (articlePiece != null && articlePiece is NewsArticle.Paragraph) {
+            NewsArticle.Paragraph((articlePiece as NewsArticle.Paragraph).value.plus("*"))
+        } else {
+            NewsArticle.Paragraph("")
+        }
+    }
+
     private fun resolveArticleVideo(model: VideoModel): NewsArticle {
         return NewsArticle.Video(model)
     }
 
     private fun resolveArticleGallery(model: GalleryModel): NewsArticle {
         return NewsArticle.Gallery(model)
+    }
+
+    private fun resolveArticleQuote(value: String): NewsArticle {
+        return NewsArticle.Quote(value)
+    }
+
+    private fun resolveArticleHeader(tag:String, value: String): NewsArticle {
+        return when(tag[1]){
+            '1' -> NewsArticle.Header1(value)
+            '2' -> NewsArticle.Header2(value)
+            else -> NewsArticle.Header3(value)
+        }
     }
 
     private fun shouldPauseTraverse(): Boolean {
@@ -151,6 +197,8 @@ class MainActivity : AppCompatActivity() {
                             articlePiece = openArticleLink()
                         } else if (node.getTextType() is ItalicText) {
                             articlePiece = openArticleItalic()
+                        }else if(node.getTextType() is BoldText){
+                            articlePiece = openArticleBold()
                         }
                     } else if (node.isVideo()) {
                         val videoElement = node.allElements.findLast { it.tagName() == "video" }
@@ -168,7 +216,8 @@ class MainActivity : AppCompatActivity() {
                                 resolveArticleVideo(VideoModel(title, thumbnail, url, duration))
                         }
                     } else if (node.isGallery()) {
-                        val title = node.allElements.find { it.classNames().contains("title") }!!.text()
+                        val title =
+                            node.allElements.find { it.classNames().contains("title") }!!.text()
                         val imageElements = node.allElements.filter { it.tagName() == "img" }
                         val images = imageElements.map {
                             val url = it.attr("src")
@@ -176,6 +225,14 @@ class MainActivity : AppCompatActivity() {
                             ImageModel(url, alt)
                         }
                         articlePiece = resolveArticleGallery(GalleryModel(title, images))
+                    } else if (node.isQuoteContainer()) {
+                        if (node.childNodeSize() > 0 && node.childNode(0) is TextNode) {
+                            val text = (node.childNode(0) as TextNode).text()
+                            articlePiece = resolveArticleQuote(text)
+                        }
+                    } else if (node.isHeaderContainer()) {
+                        val text = node.text()
+                        articlePiece = resolveArticleHeader(node.tagName(), text)
                     }
                 }
             }
@@ -189,11 +246,13 @@ class MainActivity : AppCompatActivity() {
                                 articlePiece = closeArticleLink(link)
                             } else if (node.getTextType() is ItalicText) {
                                 articlePiece = closeArticleItalic()
+                            }else if (node.getTextType() is BoldText){
+                                articlePiece = closeArticleBold()
                             }
                         }
                     }
                 }
-                if (depth == 1) {
+                if (depth == 3) {
                     addToArticle()
                     addSpacer()
                 }
