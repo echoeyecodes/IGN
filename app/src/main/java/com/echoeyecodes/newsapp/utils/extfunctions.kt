@@ -1,11 +1,13 @@
 package com.echoeyecodes.newsapp.utils
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
+import android.util.TypedValue
 import com.echoeyecodes.newsapp.models.BoldText
 import com.echoeyecodes.newsapp.models.ItalicText
 import com.echoeyecodes.newsapp.models.LinkText
@@ -13,6 +15,15 @@ import com.echoeyecodes.newsapp.models.RegularText
 import org.jsoup.nodes.Element
 import java.util.regex.Pattern
 
+
+fun Int.convertToDp(): Int {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        this.toFloat(),
+        Resources.getSystem().displayMetrics
+    )
+        .toInt()
+}
 
 /*
 Use this method to determine if we intend to grab a couple

@@ -16,7 +16,7 @@ class CustomClickableSpan(private val value: String, private val context:Context
 
     override fun updateDrawState(ds: TextPaint) {
         super.updateDrawState(ds)
-        ds.isUnderlineText = false
+        ds.isUnderlineText = true
         ds.color = ResourcesCompat.getColor(context.resources, R.color.teal_200, null)
     }
 

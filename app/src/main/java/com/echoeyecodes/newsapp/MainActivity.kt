@@ -35,7 +35,9 @@ class MainActivity : AppCompatActivity() {
         recyclerView = binding.recyclerView
         val layoutManager = LinearLayoutManager(this)
         val adapter = NewsAdapter()
+        val itemDecoration = CustomItemDecoration(0, 10)
         recyclerView.layoutManager = layoutManager
+        recyclerView.addItemDecoration(itemDecoration)
         recyclerView.adapter = adapter
 
         textView = binding.text
